@@ -60,3 +60,17 @@ ON e.id_video = v.id_video
 GROUP BY e.fecha_entrega, v.id_video
 ORDER BY e.fecha_entrega
 
+---1.9. Listar, para cada ciudad, el nombre de la ciudad y la cantidad de empleados mayores de edad que desempeñan tareas en departamentos de la misma y que posean al
+---menos 30 empleados.
+
+SELECT c.nombre_ciudad, COUNT(*) AS cantidad_empleados_mayores_de_edad_con_menos_de_dicha_cantidad_de_empleados
+FROM empleado e
+INNER JOIN departamento d
+ON e.id_departamento = d.id_departamento AND e.id_distribuidor = d.id_distribuidor
+INNER JOIN ciudad c
+ON d.id_ciudad = c.id_ciudad
+---"filtro" por tabla
+WHERE EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM e.fecha_nacimiento) >= 18 
+GROUP BY c.nombre_ciudad
+---filtro por lo que se agrupa
+HAVING COUNT(*) >= 30
