@@ -98,3 +98,6 @@ INNER JOIN continente c ON c.id_continente = p.id_continente
 ---aca pense en considerar nada mas los coordinadores
 WHERE v.id_coordinador IS NOT NULL   
 GROUP BY p.nombre_pais, c.nombre_continente 
+
+
+---faltan dos incisos mas y despues practica de INSERT y UPDATE
