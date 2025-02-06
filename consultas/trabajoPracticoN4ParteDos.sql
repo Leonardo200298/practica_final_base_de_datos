@@ -49,3 +49,14 @@ ON r.nro_entrega = e.nro_entrega
 WHERE EXTRACT(YEAR FROM e.fecha_entrega) >= 2010
 GROUP BY p.genero
 
+---1.8. Realizar un resumen de entregas por día, indicando el video club al cual se le
+---realizó la entrega y la cantidad entregada. Ordenar el resultado por fecha.
+
+SELECT e.fecha_entrega AS diaEntrega, v.id_video AS videoclub,
+COUNT(*) AS cantidadEntregada
+FROM entrega e
+INNER JOIN video v
+ON e.id_video = v.id_video
+GROUP BY e.fecha_entrega, v.id_video
+ORDER BY e.fecha_entrega
+
