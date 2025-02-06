@@ -84,3 +84,17 @@ INNER JOIN institucion i
 ON v.id_institucion = i.id_institucion
 GROUP BY i.nombre_institucion
 ORDER BY i.nombre_institucion
+
+
+---2.2. Determine la cantidad de coordinadores en cada país, agrupados por nombre de
+---país y nombre de continente. Etiquete la primer columna como 'Número de coordinadores'
+
+SELECT COUNT(*) AS numero_coordinadores, p.nombre_pais, c.nombre_continente  
+FROM voluntario v  
+INNER JOIN institucion i ON v.id_institucion = i.id_institucion  
+INNER JOIN direccion d ON i.id_direccion = d.id_direccion  
+INNER JOIN pais p ON d.id_pais = p.id_pais  
+INNER JOIN continente c ON c.id_continente = p.id_continente  
+---aca pense en considerar nada mas los coordinadores
+WHERE v.id_coordinador IS NOT NULL   
+GROUP BY p.nombre_pais, c.nombre_continente 
