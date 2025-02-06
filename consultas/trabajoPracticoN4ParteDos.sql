@@ -36,3 +36,16 @@ AND EXISTS (
     WHERE e2.id_jefe = d.jefe_departamento  
     AND e2.porc_comision > e.porc_comision * 1.1   
 );
+
+---Parte del ejercicio que es con agrupacion
+---1.7. Indicar la cantidad de películas entregadas a partir del 2010, por género.
+
+SELECT p.genero, COUNT(*) AS cantidad_de_peliculas_por_anio
+FROM pelicula p
+INNER JOIN renglon_entrega r
+ON r.codigo_pelicula = p.codigo_pelicula 
+INNER JOIN entrega e
+ON r.nro_entrega = e.nro_entrega
+WHERE EXTRACT(YEAR FROM e.fecha_entrega) >= 2010
+GROUP BY p.genero
+
