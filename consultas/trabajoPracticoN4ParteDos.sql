@@ -74,3 +74,13 @@ WHERE EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM e.fecha_nacimiento) >=
 GROUP BY c.nombre_ciudad
 ---filtro por lo que se agrupa
 HAVING COUNT(*) >= 30
+
+---2.1. Muestre, para cada institución, su nombre y la cantidad de voluntarios que realizan
+---aportes. Ordene el resultado por nombre de institución.
+
+SELECT i.nombre_institucion, COUNT(*) AS cantidad_voluntarios
+FROM voluntario v
+INNER JOIN institucion i
+ON v.id_institucion = i.id_institucion
+GROUP BY i.nombre_institucion
+ORDER BY i.nombre_institucion
