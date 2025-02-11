@@ -39,3 +39,23 @@ ON DELETE CASCADE;
 ---eliminacion de una palabra
 DELETE FROM p5p1e1_palabra
 WHERE idioma = 'ES' AND cod_palabra = 1
+
+---ejercicio 1 inciso b
+
+---borro la primera restriccio  para probar otra 
+ALTER TABLE p5p1e1_contiene
+DROP CONSTRAINT fk_p5p1e1_contiene_palabra
+
+---nueva restriccion con set null para DELETE y UPDATE
+ALTER TABLE p5p1e1_contiene
+ADD CONSTRAINT fk_contiene_palabra
+FOREIGN KEY (idioma, cod_palabra)
+REFERENCES p5p1e1_palabra
+ON DELETE SET NULL
+ON UPDATE SET NULL
+
+---borrado y editado
+DELETE FROM p5p1e1_palabra
+WHERE idioma = 'EN' AND cod_palabra = 2
+
+---sentencia aunque tampoco se podria ya que la tabla contiene no puede tener en null esos campos
