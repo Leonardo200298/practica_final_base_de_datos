@@ -26,3 +26,14 @@ CHECK (NOT EXISTS (SELECT v1.*
                    FROM voluntario v1  
                    INNER JOIN voluntario v2 ON v1.id_coordinador = v2.nro_voluntario  
                    WHERE v1.horas_aportadas > v2.horas_aportadas;))
+
+---C. Las horas aportadas por los voluntarios deben estar dentro de los valores máximos y
+---mínimos consignados en la tarea.
+
+CREATE ASSERTION horas_aportadas_dentro_de_valores
+CHECK(NOT EXISTS (SELECT *
+FROM voluntario v
+INNER JOIN tarea t
+ON v.id_tarea = t.d_tarea
+WHERE v.horas_aportadas BETWEEN t.min_horas AND t.max_horas
+))
