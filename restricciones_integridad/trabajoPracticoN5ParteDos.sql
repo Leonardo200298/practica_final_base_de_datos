@@ -74,6 +74,16 @@ HAVING sueldo_maximo < sueldo_minimo))
 
 ---B. No puede haber más de 70 empleados en cada departamento.
 
+CREATE ASSERTION CK_NO_MAS_DE_70_EMPLEADOS_POR_DEPARTAMENTO
+CHECK(NOT EXISTS (SELECT d.id_departamento, COUNT(e.id_empleado) AS cantidad_empleados_por_departamento
+FROM departamento d
+INNER JOIN empleado e
+ON e.id_departamento = d.id_departamento AND e.id_distribuidor = d.id_distribuidor
+GROUP BY d.id_departamento
+HAVING COUNT(e.id_empleado) < 70))
+
+
+
 ---Ejercicio 3
 
 ---A. Controlar que las nacionalidades sean 'Argentina','Español', 'Inglés', 'Alemán' o 'Chilena'
