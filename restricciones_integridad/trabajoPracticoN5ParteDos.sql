@@ -1,5 +1,7 @@
 ---trabajo practico nro 5 parte 2
 
+---Ejercicio 1
+
 ---A. No puede haber voluntarios de más de 70 años. Aquí como la edad es un dato que
 ---depende de la fecha actual lo deberíamos controlar de otra manera.
 ---A.Bis - Controlar que los voluntarios deben ser mayores a 18 años.
@@ -57,3 +59,20 @@ WHERE EXTRACT(DAY FROM CURRENT_DATE) BETWEEN 0 AND 365
 GROUP BY i.id_institucion  
 HAVING COUNT(v.id_institucion) > 3
 ));
+
+---Ejercicio 2
+
+---A. Para cada tarea el sueldo máximo debe ser mayor que el sueldo mínimo.
+
+ALTER TABLE tareas
+ADD CONSTRAINT CK_SUELDO_MAXIMO_MAYO_A_SUELDO_MINIMO
+CHECK(NOT EXISTS (
+SELECT id_tarea, sueldo_maximo, sueldo_minimo
+FROM tareas
+GROUP BY id_tarea, sueldo_maximo, sueldo_minimo
+HAVING sueldo_maximo < sueldo_minimo))
+
+
+---Ejercicio 3
+
+---A. Controlar que las nacionalidades sean 'Argentina','Español', 'Inglés', 'Alemán' o 'Chilena'
