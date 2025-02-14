@@ -72,7 +72,17 @@ FROM tareas
 GROUP BY id_tarea, sueldo_maximo, sueldo_minimo
 HAVING sueldo_maximo < sueldo_minimo))
 
+---B. No puede haber más de 70 empleados en cada departamento.
 
 ---Ejercicio 3
 
 ---A. Controlar que las nacionalidades sean 'Argentina','Español', 'Inglés', 'Alemán' o 'Chilena'
+ALTER TABLE p5p1e1_articulo
+ADD CONSTRAINT ck_nacionalidades_especificas
+CHECK(nacionalidad IN ('Argentina','Español', 'Inglés', 'Alemán', 'Chilena'))
+
+
+
+
+
+
