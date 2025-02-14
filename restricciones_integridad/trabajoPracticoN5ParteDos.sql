@@ -37,3 +37,23 @@ INNER JOIN tarea t
 ON v.id_tarea = t.d_tarea
 WHERE v.horas_aportadas BETWEEN t.min_horas AND t.max_horas
 ))
+
+---D. Todos los voluntarios deben realizar la misma tarea que su coordinador.
+
+CREATE ASSERTION ck_coordinadores_voluntarios_misma_tarea
+CHECK(NOT EXISTS(SELECT *
+FROM voluntario v1
+INNER JOIN voluntario v2
+ON v1.id_coordinador = v2.nro_voluntario
+WHERE v1.id_tarea <> v2.id_tarea))
+
+---E. Los voluntarios no pueden cambiar de institución más de tres veces al año.
+
+CREATE ASSERTION ck_voluntario_institucion
+CHECK(NOT EXISTS (SELECT i.id_institucion  
+FROM voluntarios v  
+INNER JOIN institucion i ON v.id_institucion = i.id_institucion   
+WHERE EXTRACT(DAY FROM CURRENT_DATE) BETWEEN 0 AND 365  
+GROUP BY i.id_institucion  
+HAVING COUNT(v.id_institucion) > 3
+));
