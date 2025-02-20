@@ -1,4 +1,4 @@
----Ejercicio nro 1 practico nro 6
+---Ejercicio nro 1 practico nro 6 parte 1
 
 ---forma declarativa 
 
@@ -149,3 +149,32 @@ CREATE TRIGGER TR_CONTROL_NACIONALIDAD_CANT_ARTICULOS_TL_ART
 BEFORE UPDATE 
 FOR EACH ROW
 EXECUTE PROCEDURE FN_CONTROL_NACIONALIDAD_PARA_ARTICULO();
+
+---Ejercicio nro 2 practico nro 6 parte 1
+
+--- B. Cada imagen no debe tener más de 5 procesamientos.
+
+CREATE OR REPLACE FUNCTION FN_CONTROL_DE_IMAGEN_POR_PROCESAMIENTO()
+RETURNS TRIGGER AS $$
+DECLARE
+   cant INTEGER;
+BEGIN
+   SELECT COUNT(*) INTO cant
+   FROM p5p2e4_procesamiento
+   WHERE id_paciente = NEW.id_paciente AND id_imagen = NEW.id_imagen;
+
+   IF (cant > 5) THEN
+      RAISE EXCEPTION 'solo se pueden 5 imagenes por procesamiento';
+   END IF;
+   RETURN NEW;
+END;
+
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER TR_IMAGEN_POR_PROCESAMIENTO_PROC
+BEFORE INSERT OR UPDATE
+FOR EACH ROW
+EXECUTE PROCEDURE FN_CONTROL_DE_IMAGEN_POR_PROCESAMIENTO();
+
+
