@@ -177,4 +177,28 @@ BEFORE INSERT OR UPDATE
 FOR EACH ROW
 EXECUTE PROCEDURE FN_CONTROL_DE_IMAGEN_POR_PROCESAMIENTO();
 
+---D. Cada paciente sólo puede realizar dos FLUOROSCOPIA anuales.
+CREATE OR REPLACE FUNCTION FN_CONTROL_DE_ESTUDIO_DOS_X_ANIO()
+RETURNS TRIGGER AS $$
+DECLARE
+   cantFluo INTEGER;
+BEGIN
+   SELECT COUNT(*) INTO cantFluo
+   FROM p5p2e4_imagen_medica
+   WHERE modalidad = 'FLUOROSCOPIA' AND id_paciente = NEW.id_paciente AND id_imagen = NEW.id_imagen
+   GROUP BY id_paciente, extract(year from fecha_img)
+   HAVING COUNT(*) > 2 
+
+   IF (cantFluo > 2) THEN
+      RAISE EXCEPTION 'supero el numero de fluoroscopias por año'
+   END IF;
+   RETURN NEW; 
+
+
+END;
+$$
+LANGUAGE plpgsql
+CREATE TRIGGER tr_fluorosocopia_cant
+BEFORE INSERT OR UPDATE OF id_paciente, id_imagen, modalidad ON p5p2e4_imagen_medica
+FOR EACH ROW EXECUTE PROCEDURE FN_CONTROL_DE_ESTUDIO_DOS_X_ANIO();
 
