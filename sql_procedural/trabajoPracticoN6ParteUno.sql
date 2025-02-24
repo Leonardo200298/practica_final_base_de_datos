@@ -197,8 +197,100 @@ BEGIN
 
 END;
 $$
-LANGUAGE plpgsql
+LANGUAGE plpgsql;
+
 CREATE TRIGGER tr_fluorosocopia_cant
 BEFORE INSERT OR UPDATE OF id_paciente, id_imagen, modalidad ON p5p2e4_imagen_medica
-FOR EACH ROW EXECUTE PROCEDURE FN_CONTROL_DE_ESTUDIO_DOS_X_ANIO();
+FOR EACH ROW
+EXECUTE PROCEDURE FN_CONTROL_DE_ESTUDIO_DOS_X_ANIO();
+
+
+---E. No se pueden aplicar algoritmos de costo computacional “O(n)” a imágenes de FLUOROSCOPIA
+CREATE OR REPLACE FUNCTION FN_CONTROL_PROCESAMIENTO()
+RETURNS TRIGGER AS $$
+DECLARE 
+   c_computacional p5p2e4_procesamiento.costo_computacional%TYPE;
+   modalidad p5p2e4_imagen_medica.modalidad%TYPE;
+BEGIN
+   SELECT costo_computacional INTO c_computacional
+   FROM p5p2e4_algoritmo
+   WHERE id_algoritmo = NEW.id_algoritmo
+
+   SELECT modalidad INTO modalidad
+   FROM p5p2e4_imagen_medica
+   WHERE id_paciente = NEW.id_paciente AND id_imagen = NEW.id_imagen
+
+   IF (modalidad = 'FLUOROSCOPIA' AND costo_computacional = 'O(n)') THEN
+      RAISE EXCEPTION 'No se puede';
+   END IF;
+   RETURN NEW;
+END;
+
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER TR_PROCESAMIENTO
+BEFORE INSERT OR UPDATE OF id_paciente, id_imagen, id_algoritmo
+ON p5p2e4_procesamiento
+FOR EACH ROW
+EXECUTE PROCEDURE FN_CONTROL_PROCESAMIENTO();
+
+CREATE OR REPLACE FUNCTION FN_CONTROL_IMAGEN_MEDICA()
+RETURNS TRIGGER AS $$
+DECLARE 
+   cost_computacional p5p2e4_algoritmo.costo_computacional%TYPE;
+BEGIN
+   SELECT cost_computacional INTO costo_computacional
+   FROM p5p2e4_algoritmo
+   INNER JOIN p5p2e4_procesamiento
+   USING(id_algoritmo)
+   WHERE id_paciente = NEW.id_paciente AND id_imagen = NEW.id_imagen;
+
+   IF (cost_computacional = 'O(n)' AND NEW.modalidad = 'FLUOROSCOPIA') THEN
+      RAISE EXCEPTION 'No se puede';
+   END IF;
+   RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER_IMAGEN_MEDICA
+BEFORE UPDATE OF id_paciente, id_imagen, modalidad
+ON p5p2e4_imagen_medica
+FOR EACH ROW
+EXECUTE PROCEDURE FN_CONTROL_IMAGEN_MEDICA();
+
+CREATE OR REPLACE FUNCTION FN_CONTROL_ALGORITMO()
+RETURNS TRIGGER AS $$
+DECLARE  
+   mod p5p2e4_imagen_medica.modalidad%TYPE;
+
+BEGIN
+   SELECT modalidad INTO mod
+   FROM p5p2e4_imagen_medica
+   INNER JOIN p5p2e4_procesamiento 
+   USING(id_paciente,id_imagen)
+   WHERE id_algoritmo = NEW.id_algoritmo;
+
+   IF (mod = 'FLUOROSCOPIA' AND NEW.costo_computacional = 'O(n)') THEN
+      RAISE EXCEPTION 'No se puede';
+   IF END;
+   RETURN NEW;
+
+END;
+
+$$
+LANGUAGE plpgsql
+
+CREATE TRIGGER TR_ALGORITMO
+BEFORE UPDATE OF id_algoritmo, costo_computacional
+ON p5p2e4_algoritmo
+FOR EACH ROW
+EXECUTE PROCEDURE FN_CONTROL_ALGORITMO();
+
+
+
+
+
+
 
