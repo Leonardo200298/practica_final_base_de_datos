@@ -289,8 +289,52 @@ FOR EACH ROW
 EXECUTE PROCEDURE FN_CONTROL_ALGORITMO();
 
 
+---ejercicio 4 practico nro 6 parte 1
 
+CREATE OR REPLACE FUNCTION FN_ACTUALIZAR_TABLA_ESTADISTICA()  
+RETURNS TRIGGER AS $$  
+BEGIN  
+   IF (TG_OP = 'UPDATE') THEN  
+      EXECUTE 'DROP TABLE IF EXISTS estadistica;';  
+      EXECUTE 'CREATE TABLE estadistica AS  
+               SELECT genero, COUNT(*) AS total_peliculas, COUNT(DISTINCT idioma) AS cantidad_idiomas  
+               FROM Pelicula  
+               GROUP BY genero;';  
 
+   ELSIF (TG_OP = 'INSERT') THEN  
+      UPDATE estadistica  
+      SET total_peliculas = total_peliculas + 1  
+      WHERE genero = NEW.genero;  
+
+      IF NOT EXISTS (SELECT 1   
+                     FROM estadistica   
+                     WHERE genero = NEW.genero AND idioma = NEW.idioma) THEN  
+         UPDATE estadistica  
+         SET cantidad_idiomas = cantidad_idiomas + 1  
+         WHERE genero = NEW.genero;  
+      END IF;  
+
+   ELSIF (TG_OP = 'DELETE') THEN  
+      UPDATE estadistica  
+      SET total_peliculas = total_peliculas - 1  
+      WHERE genero = OLD.genero;  
+
+      IF (SELECT COUNT(*) FROM Pelicula WHERE idioma = OLD.idioma) = 0 THEN  
+         UPDATE estadistica  
+         SET cantidad_idiomas = cantidad_idiomas - 1  
+         WHERE genero = OLD.genero;  
+      END IF;  
+   END IF;  
+
+   RETURN NULL; 
+END;  
+$$  
+LANGUAGE plpgsql;
+
+CREATE TRIGGER TR_ACTUALIZAR_ESTADISTICA 
+AFTER INSERT OR UPDATE OR DELETE ON peliculas  
+FOR EACH ROW  
+EXECUTE FUNCTION FN_ACTUALIZAR_TABLA_ESTADISTICA();
 
 
 
