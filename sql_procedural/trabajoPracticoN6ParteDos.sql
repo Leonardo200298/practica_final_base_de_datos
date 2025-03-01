@@ -14,28 +14,22 @@
 
 ---debo crear una tabla que se llame HIS_TAREA
 CREATE OR REPLACE FUNCTION FN_CREAR_TABLA_HIS_TAREA()  
-RETURNS TABLE(nro_registro integer, fecha timestamp, operacion varchar, usuario varchar) AS $$  
-DECLARE  
-    registro_count integer := 0;   
+RETURNS TRIGGER AS $$  
+
 BEGIN  
    
-    registro_count := registro_count + 1;  
-    nro_registro := registro_count; 
     IF (TG_OP = 'INSERT') THEN  
-        fecha := CURRENT_TIMESTAMP;  
-        operacion := TG_OP;  
-        usuario := CURRENT_USER;  
+        INSERT INTO HIS_TAREA  (fecha, operacion, usuario)
+        VALUES (CURRENT_TIMESTAMP, TG_OP, CURRENT_USER); 
     ELSIF (TG_OP = 'UPDATE') THEN  
-        fecha := CURRENT_TIMESTAMP;  
-        operacion := TG_OP;  
-        usuario := CURRENT_USER;  
+        INSERT INTO HIS_TAREA  (fecha, operacion, usuario)
+        VALUES (CURRENT_TIMESTAMP, TG_OP, CURRENT_USER);   
     ELSIF (TG_OP = 'DELETE') THEN  
-        fecha := CURRENT_TIMESTAMP;  
-        operacion := TG_OP;  
-        usuario := CURRENT_USER;   
+        INSERT INTO HIS_TAREA  (fecha, operacion, usuario)
+        VALUES (CURRENT_TIMESTAMP, TG_OP, CURRENT_USER);   
     END IF;  
 
-    RETURN NEXT;   
+    RETURN NULL;
 END;  
 $$  
 LANGUAGE plpgsql;  
@@ -44,4 +38,11 @@ CREATE TRIGGER TR_MODIFICACION_DE_TABLA_TAREA
 BEFORE INSERT OR UPDATE OR DELETE  
 ON tareas  
 FOR EACH STATEMENT   
-EXECUTE PROCEDURE FN_CREAR_TABLA_HIS_TAREA();  
+EXECUTE PROCEDURE FN_CREAR_TABLA_HIS_TAREA(); 
+
+DELETE FROM tareas
+WHERE id_tarea = '519';
+
+UPDATE tareas
+SET nombre_tarea = 'sin tarea'
+WHERE id_tarea = '520';
