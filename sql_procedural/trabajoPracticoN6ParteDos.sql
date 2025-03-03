@@ -100,27 +100,25 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION SUELDOS()
-RETURNS TABLE(id_empleado, apellido, nombre, sueldo, porc_comision) AS $$
-    RETURN QUERY
-$$
+CREATE OR REPLACE FUNCTION SUELDOS()  
+RETURNS TABLE(id_empleado NUMERIC(6,0), apellido TEXT, nombre TEXT, sueldo NUMERIC, porc_comision NUMERIC) AS $$  
+BEGIN  
+    RETURN QUERY  
+    SELECT   
+        k.id_empleado,   
+        k.apellido,   
+        k.nombre,   
+        k.sueldo,   
+        k.porc_comision  
+    FROM empleadosdepeliculas k  
+    WHERE k.porc_comision > (  
+        SELECT AVG(e.porc_comision)   
+        FROM empleadosdepeliculas e  
+        INNER JOIN departamentodepeliculas d ON e.id_departamento = d.id_departamento  
+        AND e.id_distribuidor = d.id_distribuidor  
+        WHERE d.id_departamento = k.id_departamento  
+        AND d.id_distribuidor = k.id_distribuidor  
+    );  
+END;   
+$$ LANGUAGE plpgsql;  
 
-LANGUAGE plpgsql;
-
-/* consulta */
-SELECT 
-    k.id_empleado, 
-    k.apellido, 
-    k.nombre, 
-    k.sueldo, 
-    k.porc_comision
-FROM empleadosdepeliculas k
-WHERE k.porc_comision > (
-    SELECT AVG(e.porc_comision) 
-    FROM empleadosdepeliculas e
-    INNER JOIN departamentodepeliculas d
-    ON e.id_departamento = d.id_departamento
-    AND e.id_distribuidor = d.id_distribuidor
-    WHERE d.id_departamento = k.id_departamento
-    AND d.id_distribuidor = k.id_distribuidor
-);
