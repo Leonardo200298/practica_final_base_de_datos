@@ -64,8 +64,6 @@ par de valores de distribuidor viejo y distribuidor nuevo es variable. */
 ---por lo menos debe tener las columnas código_pelicula, nombre, cantidad_de_entregas (en
 ---caso de coincidir en cantidad de entrega ordenar por código de película).
 
-/* crear funcion que devuelva tabla, ya que es mas facil al momento ded ejecucion de la funcion
-saber las 20 peliculas mas entregadas */
 
 /* Consulta para crear cursor */
 
@@ -137,3 +135,45 @@ BEGIN
 
 END;  
 $$ LANGUAGE plpgsql;  
+
+---Ejercicio 3
+---Para el esquema unc_voluntarios se desea conocer la cantidad de voluntarios que hay en cada
+---tarea al inicio de cada mes y guardarla a lo largo de los meses. Para esto es necesario hacer un
+---procedimiento que calcule la cantidad y la almacene en una tabla denominada
+---CANT_VOLUNTARIOSXTAREA con la siguiente estructura:
+---CANT_VOLUNTARIOSXTAREA (anio, mes, id_tarea, nombre_tarea, cant_voluntarios)
+
+---creacion de tabla 
+CREATE TABLE cant_voluntarios_por_tarea (
+    anio INT,
+    mes INT,
+    id_tarea VARCHAR(10),
+    nombre_tarea VARCHAR(40),
+    cant_voluntarios INT
+);
+
+
+CREATE OR REPLACE FUNCTION FN_VOLUNTARIOS_X_TAREA() RETURNS TRIGGER AS $$  
+DECLARE  
+    cant_volun INTEGER;  
+    reg_tarea RECORD;  
+BEGIN  
+    FOR reg_tarea IN (SELECT id_tarea, nombre_tarea FROM tarea) LOOP   
+        SELECT COUNT(*) INTO cant_volun  
+        FROM voluntarios  
+        WHERE id_tarea = reg_tarea.id_tarea;  
+
+        
+        IF (EXTRACT(DAY FROM CURRENT_DATE) = 1) THEN  
+            INSERT INTO cant_voluntarios_por_tarea (anio, mes, id_tarea, nombre_tarea, cant_voluntarios)  
+            VALUES (EXTRACT(YEAR FROM CURRENT_DATE), EXTRACT(MONTH FROM CURRENT_DATE), reg_tarea.id_tarea, reg_tarea.nombre_tarea, cant_volun);  
+        END IF;  
+    END LOOP;  
+
+    RETURN NEW;  
+END;  
+$$ LANGUAGE plpgsql;  
+
+CREATE TRIGGER TR_VOLUNTARIOS_X_TAREA  
+AFTER INSERT OR UPDATE OR DELETE ON voluntarios  
+EXECUTE FUNCTION FN_VOLUNTARIOS_X_TAREA();  
