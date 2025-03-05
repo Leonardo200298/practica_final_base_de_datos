@@ -122,3 +122,18 @@ BEGIN
 END;   
 $$ LANGUAGE plpgsql;  
 
+---e) Cambiar el distribuidor de las entregas sucedidas a partir de una fecha dada, siendo que el
+---par de valores de distribuidor viejo y distribuidor nuevo es variable.
+
+CREATE OR REPLACE FUNCTION FN_CAMBIO_DISTRIBUIDOR(  
+    fecha_parametro DATE,  
+    nuevo_id_distribuidor NUMERIC(5,0)
+)  
+RETURNS VOID AS $$  
+BEGIN  
+  UPDATE entregapelicula 
+  SET id_distribuidor = nuevo_id_distribuidor  
+  WHERE fecha_entrega >= fecha_parametro;  
+
+END;  
+$$ LANGUAGE plpgsql;  
