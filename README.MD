@@ -21,7 +21,7 @@ Incluye:
 Uso de vistas en PostgreSQL, incluyendo vistas materializadas y optimización de consultas con vistas.
 
 📂 **consultas_avanzadas_optimización/**  
-Consultas SQL avanzadas y técnicas de optimización, como índices, planificación de consultas (`EXPLAIN ANALYZE`), particionamiento y uso de CTEs (`WITH`).
+Consultas SQL avanzadas y técnicas de optimización, como índices, planificación de consultas (`EXPLAIN ANALYZE`) y particionamiento.
 
 ## Cómo usar este repositorio
 
